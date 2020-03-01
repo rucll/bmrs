@@ -20,7 +20,10 @@ class BMRS_parser:
 
         # Start by finding the index of the rightmost "if" -> i
         # While you can find an "if", run the algorithm
-        while (i := self.findLastIf(resultList)) != -1:
+        ## [Replace while condition with next two lines for v. < 3.8]
+        # i = self.findLastIf(resultList)
+        # while i != -1:
+        while i := self.findLastIf(resultList)) != -1:
             
             # The following 2 if statements attempts to catch missing "then/else" clauses
             if len(resultList) < 3 or resultList[i+2] != "then":
@@ -40,6 +43,9 @@ class BMRS_parser:
                 return innerList
             else: # Replace the expression with the sublist
                 resultList[i] = innerList 
+
+            # { Uncomment below for v. < 3.8 }
+            # i = self.findLastIf(resultList) 
 
         return resultList # In case the input expression has no "if" to begin with (i.e. is just T|F|_(p(x)))
 
