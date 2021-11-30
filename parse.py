@@ -18,9 +18,14 @@ def parse(s: str) -> Node:
     this_node.condition = s[(if_index + 2):then_index]
 
     if s.count("then") == s.count("else") <= 1:
-        this_node.the = s[then_index+4:s.find("else")]
-        this_node.els = s[s.find("else")+4:]
-        return
+        t = Node()
+        t.condition = s[then_index+4:s.find("else")]
+
+        e = Node()
+        e.condition = s[s.find("else")+4:]
+        this_node.the = t
+        this_node.els = e
+        return this_node
 
     sbs = s[then_index + 4:]
     then_count = 1
@@ -57,4 +62,6 @@ def parse(s: str) -> Node:
     return this_node
 
 
-parse("if a(x) then if b(x) then c(x) else d(x) else c(p(x))")
+root = parse("if a(x) then if b(x) then c(x) else d(x) else c(p(x))")
+print(root.condition, "\n", root.the.condition, root.the.the.condition, "\n", root.els.condition)
+
