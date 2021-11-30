@@ -54,6 +54,7 @@ def parse(s: str) -> Node:
     # print(this_node.condition, "|", then_part, "|", else_part)
     this_node.the = parse(then_part)
     this_node.els = parse(else_part)
+    return this_node
 
 
 parse("if a(x) then if b(x) then c(x) else d(x) else c(p(x))")
