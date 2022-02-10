@@ -7,10 +7,10 @@ def parse_file(file_name: str):
     file = open(file_name)
     s = file.read().replace("\n", " ")
     file.close()
-    return parse(s)
+    return build_tree(s)
 
 
-def parse(s: str, wai='root') -> Node:
+def build_tree(s: str, wai='root') -> Node:
     if_index = s.find("if")
     # this_node = Node(value=None, name=wru + str(v))
     this_node = Node(value=None, name=wai)
@@ -32,10 +32,10 @@ def parse(s: str, wai='root') -> Node:
                    after_if[:current_index].count('if')):
             current_index = after_if.find('then', current_index + 4)
         then_index = current_index + if_index + 3
-        this_node.children.append(parse(after_if[:current_index], wai='condition'))
+        this_node.children.append(build_tree(after_if[:current_index], wai='condition'))
     else:
         then_index = s.find("then")
-        this_node.children.append(parse(s[(if_index + 3):then_index], wai='condition'))
+        this_node.children.append(build_tree(s[(if_index + 3):then_index], wai='condition'))
 
     # find where then part ends
     then_start = then_index + 4
@@ -66,14 +66,33 @@ def parse(s: str, wai='root') -> Node:
     then_part = s[then_start:sep_index - 4]
     else_part = sbs
 
-    this_node.children.append(parse(then_part, wai='then'))
-    this_node.children.append(parse(else_part, wai='else'))
+    this_node.children.append(build_tree(then_part, wai='then'))
+    this_node.children.append(build_tree(else_part, wai='else'))
     return this_node
 
 
 # (full sentence, expression, current index)
-def parse_str(sentence: str, exp: str, i: int) -> bool:
-    return sentence[i + exp.count('S') - exp.count('P')] == ''.join(filter(str.islower, exp))
+def parse_exp(sentence: str, exp: str, i: int) -> bool:
+    shorten = ''.join(filter(str.isalpha, exp))
+    for c in shorten:
+        if i < 0 or i > len(sentence):
+            raise 'invalid index'
+        if c == 'P':
+            i -= 1
+        elif c == 'S':
+            i += 1
+        else:
+            if not sentence[i] == c:
+                return False
+
+    return True
+
+
+def parse(sentence: str, exp: str):
+    root = build_tree("if if a(x) then true else false then if b(x) then c(x) else d(x) else c(P(x))")
+    tree = Tree(root=root)
+    print(tree)
+    return None
 
 
 # exp: "if if a(x) then TRUE else FALSE then if b(x) then c(x) else d(x) else c(P(x))"
@@ -83,8 +102,8 @@ def parse_str(sentence: str, exp: str, i: int) -> bool:
 # node.name = type of node (Who Am I)                       { 'root', 'then', 'else', 'condition' }
 
 
-# root = parse("if if a(x) then true else false then if b(x) then c(x) else d(x) else c(P(x))")
-# root = parse("if a(x) then if b(x) then g(S(x)) else d(x) else c(P(x))")
+# root = build_tree("if if a(x) then true else false then if b(x) then c(x) else d(x) else c(P(x))")
+# root = build_tree("if a(x) then if b(x) then g(S(x)) else d(x) else c(P(x))")
 #
 # tree = Tree(root=root)
 # print(tree)
@@ -97,4 +116,4 @@ def parse_str(sentence: str, exp: str, i: int) -> bool:
 #    01234
 s = 'xfadf'
 exs = 'P(P(P(P(x)))))'
-print(parse_str(s, exs, 4))
+print(parse_exp(s, exs, 4))
