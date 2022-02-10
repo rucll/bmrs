@@ -1,3 +1,4 @@
+import copy
 from structure import Node
 
 
@@ -13,19 +14,23 @@ def parse_file(file_name: str):
 
 def parse(s: str) -> Node:
     if_index = s.find("if")
-    then_index = s.find("then")
     this_node = Node()
-    this_node.condition = s[(if_index + 2):then_index]
-
-    if s.count("then") == s.count("else") <= 1:
-        t = Node()
-        t.condition = s[then_index+4:s.find("else")]
-
-        e = Node()
-        e.condition = s[s.find("else")+4:]
-        this_node.the = t
-        this_node.els = e
+    then_index = -1
+    if ('if' not in s) and ('then' not in s) and ('else' not in s):
+        this_node.condition = s
         return this_node
+    # handle condition part
+    after_if = copy.deepcopy(s[if_index + 3:])
+    if ('if' in after_if) and (after_if.find('if') < after_if.find('then')):
+        current_index = after_if.find('then', after_if.find('then') + 4)
+        while not (after_if[:current_index].count('then') == after_if[:current_index].count('else') == after_if[:current_index].count('if')):
+            current_index = after_if.find('then', current_index + 4)
+        then_index = current_index + if_index + 3
+        this_node.condition = parse(after_if[:current_index])
+    else:
+        then_index = s.find("then")
+        this_node.condition = s[(if_index + 3):then_index]
+    # _____________________________________
 
     sbs = s[then_index + 4:]
     then_count = 1
@@ -56,12 +61,14 @@ def parse(s: str) -> Node:
 
     then_part = s[s.find("then") + 4:sep_index - 4]
     else_part = sbs
-    # print(this_node.condition, "|", then_part, "|", else_part)
     this_node.the = parse(then_part)
     this_node.els = parse(else_part)
     return this_node
 
 
-root = parse("if a(x) then if b(x) then c(x) else d(x) else c(p(x))")
-print(root.condition, "\n", root.the.condition, root.the.the.condition, "\n", root.els.condition)
-
+# root = parse("if if a(x) then true else false then if b(x) then c(x) else d(x) else c(p(x))")
+root = parse("if if a(x) then TRUE else FALSE then if b(x) then c(x) else d(x) else c(p(x))")
+print(root.condition)
+print(root.the.condition)
+print(root.the.the.condition)
+print(root.els.condition)
