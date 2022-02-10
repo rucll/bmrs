@@ -1,6 +1,0 @@
-if a(x) then b(x) else c(p(x))
-
-if
-  if a(x) then b(p(x)) else F
-then c(p(p(x))
-else b(p(p(x))
