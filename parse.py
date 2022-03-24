@@ -1,46 +1,45 @@
 import copy
-from structure import Node
+from treeplotter.tree import Node, Tree
+from treeplotter.plotter import create_tree_diagram
 
 
-def parse_file(file_name: str):
-    file = open(file_name)
-    s = file.read().replace("\n", " ")
-    file.close()
-    return parse(s)
+def build_tree(sentence: str, wai='root'):
+    if_index = sentence.find("IF")
+    this_node = Node(value=None, name=wai)
 
-
-# takes in s such as only the then, else parts of an entire statement
-# if <condition> then <terms> else <terms>
-
-def parse(s: str) -> Node:
-    if_index = s.find("if")
-    this_node = Node()
+    this_node.children = []
     then_index = -1
-    if ('if' not in s) and ('then' not in s) and ('else' not in s):
-        this_node.condition = s
-        return this_node
-    # handle condition part
-    after_if = copy.deepcopy(s[if_index + 3:])
-    if ('if' in after_if) and (after_if.find('if') < after_if.find('then')):
-        current_index = after_if.find('then', after_if.find('then') + 4)
-        while not (after_if[:current_index].count('then') == after_if[:current_index].count('else') == after_if[:current_index].count('if')):
-            current_index = after_if.find('then', current_index + 4)
-        then_index = current_index + if_index + 3
-        this_node.condition = parse(after_if[:current_index])
-    else:
-        then_index = s.find("then")
-        this_node.condition = s[(if_index + 3):then_index]
-    # _____________________________________
 
-    sbs = s[then_index + 4:]
+    # if it's the smallest unit.(base case)
+    if ('IF' not in sentence) and ('THEN' not in sentence) and ('ELSE' not in sentence):
+        this_node.value = sentence.strip()
+        return this_node
+
+    # handle condition part
+    after_if = copy.deepcopy(sentence[if_index + 3:])
+    if ('IF' in after_if) and (after_if.find('IF') < after_if.find('THEN')):
+        current_index = after_if.find('THEN', after_if.find('THEN') + 4)
+        while not (after_if[:current_index].count('IF')==
+                   after_if[:current_index].count('ELSE') ==
+                   after_if[:current_index].count('THEN')):
+            current_index = after_if.find('THEN', current_index + 4)
+        then_index = current_index + if_index + 3
+        this_node.children.append(build_tree(after_if[:current_index], wai='condition'))
+    else:
+        then_index = sentence.find('THEN')
+        this_node.children.append(build_tree(sentence[(if_index + 3):then_index], wai='condition'))
+
+    # find where then part ends
+    then_start = then_index + 4
+    sbs = sentence[then_start:]
+
     then_count = 1
     else_count = 0
 
     sep_index = then_index + 4
-
     while then_count != else_count:
-        then_index = sbs.find("then")
-        else_index = sbs.find("else")
+        then_index = sbs.find("THEN")
+        else_index = sbs.find("ELSE")
 
         # next one is then
         if (then_index != -1 and then_index < else_index) or else_index == -1:
@@ -56,19 +55,17 @@ def parse(s: str) -> Node:
             sep_index = sep_index + else_index + 4
             continue
 
-        if then_index == -1 and else_index == -1:
-            raise "weird stuff"
+    then_part = sentence[then_start:sep_index - 4].strip()
+    else_part = sbs.strip()
 
-    then_part = s[s.find("then") + 4:sep_index - 4]
-    else_part = sbs
-    this_node.the = parse(then_part)
-    this_node.els = parse(else_part)
+    this_node.children.append(build_tree(then_part, wai='THEN'))
+    this_node.children.append(build_tree(else_part, wai='ELSE'))
     return this_node
 
-
-# root = parse("if if a(x) then true else false then if b(x) then c(x) else d(x) else c(p(x))")
-root = parse("if if a(x) then TRUE else FALSE then if b(x) then c(x) else d(x) else c(p(x))")
-print(root.condition)
-print(root.the.condition)
-print(root.the.the.condition)
-print(root.els.condition)
+# (full sentence, expression, current index)
+# process functionName(f2(f3(f4(f5(x))))
+def parse_exp(sentence: str, exp: str, i: int):
+    i = i + exp.count('S') - exp.count('P')
+    if i < 0 or i > len(sentence):
+        raise 'invalid index'
+    return i
