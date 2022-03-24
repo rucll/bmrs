@@ -27,13 +27,13 @@
 
 import re
 from bmrs import bmrs
-exp = "IF IF a(x) THEN False ELSE True THEN IF b(x) THEN b(P(P(x))) ELSE a(P(x)) ELSE a(P(x))"
-sentence = "xacdb"
+exp = "IF IF a(x) THEN False ELSE True THEN IF b(x) THEN b(P(P(x))) ELSE a(P(x)) ELSE b(P(x))"
+sentence = "bacdb"
 x = 1
 
 O = bmrs(exp, sentence, x)
-f_names = ['a',                 'b',                'c']
-fs      = [lambda x : x =='a',  lambda x : x =='b', lambda x : x =='c']
+# f_names = ['a',                 'b',                'c']
+# fs      = [lambda x : x =='a',  lambda x : x =='b', lambda x : x =='c']
 
-O.add_to_dic(f_names, fs)
+# O.add_to_dic(f_names, fs)
 print(O.evl_exp())

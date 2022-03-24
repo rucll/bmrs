@@ -25,7 +25,10 @@ class bmrs:
             'True': lambda x: True, 
             'False': lambda x: False,
             'P': lambda x: x-1,
-            'S': lambda x: x+1
+            'S': lambda x: x+1,
+            'a': lambda x: sentence[x] == 'a',
+            'b': lambda x: sentence[x] == 'b',
+            'c': lambda x: sentence[x] == 'c'
         }
         self.tree = build_tree(expression)
 
@@ -39,27 +42,30 @@ class bmrs:
 
     def rec_par_fun(self, fun):
         # base case when there's only x left
-        print(fun[0])
         if len(fun) == 1: 
             if fun[0] == "x":
                 return self.x
             elif fun[0] in self.dic:
                 return self.dic[fun[0]](self.x)
             else:
-                raise "expression should end with variable x"
+                raise "invalid expression"
         
         # apply f to right
         f_name = fun[0]
         if f_name not in self.dic: 
             raise "expression is not found"
-        return self.dic[f_name]( self.rec_par_fun(fun[1:]) )
+        f = self.dic[f_name]
+        character = self.rec_par_fun(fun[1:])
+        return f(character)
 
 
     def parse_fun(self, fun):
         fun = re.split("\(|\)", fun)
         while "" in fun:
             fun.remove("")
-        return self.rec_par_fun(fun)
+        res = self.rec_par_fun(fun)
+        print(fun, res)
+        return res
 
 
     def evl_exp_helper(self, root):
