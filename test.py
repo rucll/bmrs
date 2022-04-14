@@ -21,19 +21,18 @@
 # print( 'Final result is:', evl_file(exp, s, 4) )
 
 # TODO: 
-#   mod parse s.t. it uses fun for {T,F}
-#   evl evls everything as a fun
-#   function that updates dic(fun)
+#   Fix add_to_dic
 
-import re
 from bmrs import bmrs
-exp = "IF IF a(x) THEN False ELSE True THEN IF b(x) THEN b(P(P(x))) ELSE a(P(x)) ELSE b(P(x))"
-sentence = "bacdb"
+
 x = 1
+sentence = "baaaa"
+O = bmrs(sentence)
 
-O = bmrs(exp, sentence, x)
-# f_names = ['a',                 'b',                'c']
-# fs      = [lambda x : x =='a',  lambda x : x =='b', lambda x : x =='c']
+exp = "IF IF e2(x) THEN False ELSE True THEN IF b(x) THEN b(P(P(x))) ELSE a(P(x)) ELSE b(P(x))"
+O.add_to_dic("e1", exp )
 
-# O.add_to_dic(f_names, fs)
-print(O.evl_exp())
+exp = "IF a(x) THEN False ELSE True"
+O.add_to_dic("e2", exp )
+
+print(O.evl("e1", x, sentence))
