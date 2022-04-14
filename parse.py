@@ -1,5 +1,5 @@
 import copy
-from treeplotter.tree import Node, Tree
+from treeplotter.tree import Node
 from treeplotter.plotter import create_tree_diagram
 
 

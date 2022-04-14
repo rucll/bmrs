@@ -1,8 +1,5 @@
-import copy
 import re
-import struct
 from types import LambdaType
-from treeplotter.tree import Node, Tree
 from treeplotter.plotter import create_tree_diagram
 from parse import build_tree, parse_exp
 
@@ -94,4 +91,4 @@ class bmrs:
             raise "cannot find function to evaluate"
         self.structure = structure
         return self.dic[f_name].evl_exp(x, self.dic)
-        
+    
