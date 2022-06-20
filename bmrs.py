@@ -2,35 +2,46 @@ import re
 from types import LambdaType
 from treeplotter.plotter import create_tree_diagram
 from parse import build_tree, parse_exp
+# TODO: add alph
 
-class bmrs:
-    # structure: "xecdb"
+class InnerClassDescriptor(object):
+  def __init__(self, cls):
+    self.cls = cls
+  def __get__(self, instance, outerclass):
+    class Wrapper(self.cls):
+      outer = instance
+    Wrapper.__name__ = self.cls.__name__
+    return Wrapper
+
+class bmrs(object):
+    # structure: "xeecdb"
     structure = ""
     # dic: dictionary from name to function
-    dic = {}
-
+    dic = {
+    }
+    
     def __init__(self,  structure: str):
         self.structure = structure
         self.dic = {
             'True': lambda x: True, 
             'False': lambda x: False,
-            'P': lambda x: False if (x<0 or x>len(structure)) else x-1,
+            'P': lambda x: False if (x-1<0 or x>len(structure)) else x-1,
             'S': lambda x: x+1,
             'a': lambda x: self.structure[x] == 'a',
             'b': lambda x: self.structure[x] == 'b',
             'c': lambda x: self.structure[x] == 'c'
         }
 
-    class Exp_fun:
+    @InnerClassDescriptor
+    class Exp_fun(object):
         # expression: IF fun(x) THEN fun(x) ELSE fun(x)
         expression = ""
         # tree: built from expression
         tree = None
-
         def __init__(self, expression: str):
             self.tree = build_tree(expression)
 
-        def rec_par_fun(self, fun, x, dic):
+        def rec_par_fun(self, fun, x):
             # base case when there's only x left
             if len(fun) == 1: 
                 if fun[0] == "x":
@@ -51,32 +62,34 @@ class bmrs:
             f_name = fun[0]
             if f_name not in dic: 
                 raise "expression is not found"
-            f = dic[f_name]
+            f = object.dic[f_name]
             if isinstance(f, LambdaType):
-                return f(self.rec_par_fun(fun[1:], x, dic))
+                return f(self.rec_par_fun(fun[1:], x))
             else:
-                return f.evl_exp(x, dic)
+                return f.evl_exp(
+                    self.rec_par_fun(fun[1:], x)
+                )
 
-        def parse_fun(self, fun, x, dic):
+        def parse_fun(self, fun, x):
             fun = re.split("\(|\)", fun)
             while "" in fun:
                 fun.remove("")
-            res = self.rec_par_fun(fun, x, dic)
+            res = self.rec_par_fun(fun, x)
             print("Function:",fun , " at ", x ," is evaluated to", res)
             return res
         
-        def evl_exp_helper(self, root, x:int, dic):
+        def evl_exp_helper(self, root, x:int):
             # Base case (leaf node)
             if len(root.children) <= 0:
-                return self.parse_fun(root.value, x, dic)
+                return self.parse_fun(root.value, x)
             # condition can be complicated here
-            if self.evl_exp_helper( root.children[0], x, dic):
-                return self.evl_exp_helper( root.children[1], x, dic)
+            if self.evl_exp_helper( root.children[0], x):
+                return self.evl_exp_helper( root.children[1], x)
             else:
-                return self.evl_exp_helper( root.children[2], x, dic)
+                return self.evl_exp_helper( root.children[2], x)
 
-        def evl_exp(self, x:int, dic):
-            return self.evl_exp_helper( self.tree, x ,dic)
+        def evl_exp(self, x:int):
+            return self.evl_exp_helper( self.tree, x)
 
     def add_to_dic (self, f_names, fs):
         if isinstance(fs, str):
