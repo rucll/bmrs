@@ -101,6 +101,7 @@ class bmrs:
         self.word = word
         if x<0 or x>=len(word):
             raise IndexError("Index out of bound")
+
         try:
             return self.dic[exp].evl_exp(self.dic, x)
         except:
