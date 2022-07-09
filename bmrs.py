@@ -1,107 +1,107 @@
+from ast import Expression
 import re
 from types import LambdaType
+from numpy import isin
+from treeplotter.tree import Node
 from treeplotter.plotter import create_tree_diagram
 from parse import build_tree, parse_exp
-# TODO: add alph
+from typing import Dict, List
 
-class InnerClassDescriptor(object):
-  def __init__(self, cls):
-    self.cls = cls
-  def __get__(self, instance, outerclass):
-    class Wrapper(self.cls):
-      outer = instance
-    Wrapper.__name__ = self.cls.__name__
-    return Wrapper
 
-class bmrs(object):
-    # structure: "xeecdb"
-    structure = ""
-    # dic: dictionary from name to function
-    dic = {
-    }
-    
-    def __init__(self,  structure: str):
-        self.structure = structure
-        self.dic = {
-            'True': lambda x: True, 
-            'False': lambda x: False,
-            'P': lambda x: False if (x-1<0 or x>len(structure)) else x-1,
-            'S': lambda x: x+1,
-            'a': lambda x: self.structure[x] == 'a',
-            'b': lambda x: self.structure[x] == 'b',
-            'c': lambda x: self.structure[x] == 'c'
-        }
+class Expression: 
+    def __init__(self) -> None:
+        self.is_lambda = True
+        self.expression = None
+    def __init__(self, exp) -> None:
+        if isinstance(exp, LambdaType) :
+            self.is_lambda = True
+            self.expression = exp
+        elif isinstance(exp, str):
+            self.is_lambda = False
+            self.expression = build_tree(exp)
+    def add(self, exp) -> None:
+        if isinstance(exp, LambdaType) :
+            self.is_lambda = True
+            self.expression = exp
+        elif isinstance(exp, str):
+            self.is_lambda = False
+            self.expression = build_tree(exp)
 
-    @InnerClassDescriptor
-    class Exp_fun(object):
-        # expression: IF fun(x) THEN fun(x) ELSE fun(x)
-        expression = ""
-        # tree: built from expression
-        tree = None
-        def __init__(self, expression: str):
-            self.tree = build_tree(expression)
-
-        def rec_par_fun(self, fun, x):
-            # base case when there's only x left
-            if len(fun) == 1: 
-                if fun[0] == "x":
-                    return x
-                elif fun[0] in dic:
-                    f = dic[fun[0]]
-                    if isinstance(f, LambdaType):
-                        t = f(x)
-                        return t
-                    else:
-                        # print("_______",f(x))
-                        t = f.evl_exp(x)
-                        return t
-                else:
-                    raise "invalid expression"
-            
-            # apply f to right
-            f_name = fun[0]
-            if f_name not in dic: 
-                raise "expression is not found"
-            f = object.dic[f_name]
-            if isinstance(f, LambdaType):
-                return f(self.rec_par_fun(fun[1:], x))
-            else:
-                return f.evl_exp(
-                    self.rec_par_fun(fun[1:], x)
-                )
-
-        def parse_fun(self, fun, x):
-            fun = re.split("\(|\)", fun)
-            while "" in fun:
-                fun.remove("")
-            res = self.rec_par_fun(fun, x)
-            print("Function:",fun , " at ", x ," is evaluated to", res)
-            return res
+    # solves f1(f2(x))
+    # in helper, fun = [f1, f2, x]
+    def evl_fun_helper(self, dic, fun, x:int):
+        # base case when there's only x left
+        if len(fun) == 1: 
+            if fun[0] == "x":
+                return x
+            elif fun[0] in dic:
+                f = dic[fun[0]]
+                return f.evl_exp(dic, x)
+            else: 
+                raise LookupError("invalid expression")
         
-        def evl_exp_helper(self, root, x:int):
-            # Base case (leaf node)
-            if len(root.children) <= 0:
-                return self.parse_fun(root.value, x)
-            # condition can be complicated here
-            if self.evl_exp_helper( root.children[0], x):
-                return self.evl_exp_helper( root.children[1], x)
-            else:
-                return self.evl_exp_helper( root.children[2], x)
+        # apply f to right
+        f_name = fun[0]
+        if f_name not in dic: 
+            raise LookupError("expression "+ f_name +" is not found" )
+        f = dic[f_name]
+        
+        if f.is_lambda :
+            return f.expression( self.evl_fun_helper(dic, fun[1:], x) )
+        else:
+            # when funciton is a tree
+            return f.evl_exp(dic, self.evl_fun_helper(dic, fun[1:], x))
+    def evl_fun(self, dic, fun,  x:int):
+        fun = re.split("\(|\)", fun)
+        while "" in fun:
+            fun.remove("")
+        res = self.evl_fun_helper(dic, fun, x)
+        return res
 
-        def evl_exp(self, x:int):
-            return self.evl_exp_helper( self.tree, x)
+    # evl if f1(x) then True else f2(f3(x))
+    def evl_exp_helper(self, dic, root: Node, x:int):
+        # Base case (leaf node), the expression will be the condition needs to be evled
+        if len(root.children) <= 0:
+            return self.evl_fun(dic, root.value, x)
+        
+        # condition can be complicated here
+        # it could be an expresssion that returns a bool.
+        if self.evl_exp_helper(dic, root.children[0], x):
+            return self.evl_exp_helper(dic, root.children[1], x)
+        else:
+            return self.evl_exp_helper(dic, root.children[2], x)
+    def evl_exp(self, dic,x:int):
+        if self.is_lambda:
+            return self.expression(x)
+        else:
+            return self.evl_exp_helper(dic, self.expression, x)
+
+class bmrs:
+    def __init__(self) -> None:
+        # dic: dictionary from name to function
+        self.word = ""
+        dic: Dict[str,  Expression] = {
+            'True':     Expression( lambda x: True ),
+            'False':    Expression( lambda x: False ),
+            'P':        Expression( lambda x: x-1 ),
+            'S':        Expression( lambda x: x+1 ),
+            'a':        Expression( lambda x: self.word[x] == 'a' ),
+            'b':        Expression( lambda x: self.word[x] == 'b' ),
+            'c':        Expression( lambda x: self.word[x] == 'c' )
+        }
+        self.dic = dic
+
 
     def add_to_dic (self, f_names, fs):
-        if isinstance(fs, str):
-            self.dic[f_names] = self.Exp_fun(fs)
-        elif isinstance(fs, LambdaType):
-            self.dic[f_names] = fs
-        else:
-            raise("invaid function")
-    
-    def evl(self, f_name, x, structure):
-        if f_name not in self.dic:
-            raise "cannot find function to evaluate"
-        self.structure = structure
-        return self.dic[f_name].evl_exp(x, self.dic)
-    
+        self.dic[f_names] = Expression(fs)
+        
+    def evl(self, exp, x, word):
+        if exp not in self.dic:
+            raise LookupError("Expression not found")
+        self.word = word
+        if x<0 or x>=len(word):
+            raise IndexError("Index out of bound")
+        try:
+            return self.dic[exp].evl_exp(self.dic, x)
+        except:
+            return False

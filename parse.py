@@ -3,7 +3,7 @@ from treeplotter.tree import Node
 from treeplotter.plotter import create_tree_diagram
 
 
-def build_tree(sentence: str, wai='root'):
+def build_tree(sentence: str, wai='root') -> Node:
     if_index = sentence.find("IF")
     this_node = Node(value=None, name=wai)
 
