@@ -77,9 +77,15 @@ class Expression:
             return self.evl_exp_helper(dic, root.children[2], x)
     def evl_exp(self, dic,x:int):
         if self.is_lambda:
-            return self.expression(x)
+            try:
+                return self.expression(x)
+            except:
+                return False
         else:
-            return self.evl_exp_helper(dic, self.expression, x)
+            try:
+                return self.evl_exp_helper(dic, self.expression, x)
+            except:
+                return False
 
 class bmrs:
     def __init__(self) -> None:
