@@ -10,8 +10,10 @@ from bmrs import bmrs
 # bmrs stores dic
 # Expression 
 O = bmrs()
+# O.add_to_dic("d", lambda x: O.word[x]=='d')
+# print(O.dic['d'].expression('d') )
 O.add_to_dic("b_o","IF b(x) THEN True ELSE b_o(P(x))")
 
       # 012345
-word = "aaaaaa"
-print(O.evl("b_o", 5, word))
+word = "aabaaa"
+print(O.evl("b_o", 1, word))
