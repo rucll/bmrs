@@ -93,6 +93,7 @@ class bmrs:
     def __init__(self) -> None:
         # dic: dictionary from name to function
         self.word = ""
+        # TODO: self.alphabet = alpha
         dic: Dict[str,  Expression] = {
             'True':     Expression( lambda x: True ),
             'False':    Expression( lambda x: False ),
