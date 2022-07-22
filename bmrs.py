@@ -88,6 +88,8 @@ class Expression:
                 return False
 
 class bmrs:
+    # TODO: Add argument to init that takes a set of one-symbols strings (an alphabet)
+    #       Then in init there is a for loop that says "for a in alphabet: dic[a] = Expression(lambda x: self.word[x] == a)"
     def __init__(self) -> None:
         # dic: dictionary from name to function
         self.word = ""
