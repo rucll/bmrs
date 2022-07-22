@@ -30,6 +30,8 @@ class Expression:
     # solves f1(f2(x))
     # in helper, fun = [f1, f2, x]
     def evl_fun_helper(self, dic, fun, x:int):
+        if x<0:
+            raise "Index out of bound"
         # base case when there's only x left
         if len(fun) == 1: 
             if fun[0] == "x":
@@ -51,6 +53,7 @@ class Expression:
         else:
             # when funciton is a tree
             return f.evl_exp(dic, self.evl_fun_helper(dic, fun[1:], x))
+
     def evl_fun(self, dic, fun,  x:int):
         fun = re.split("\(|\)", fun)
         while "" in fun:
@@ -60,6 +63,8 @@ class Expression:
 
     # evl if f1(x) then True else f2(f3(x))
     def evl_exp_helper(self, dic, root: Node, x:int):
+        if x<0:
+            raise "Index out of bound"
         # Base case (leaf node), the expression will be the condition needs to be evled
         if len(root.children) <= 0:
             return self.evl_fun(dic, root.value, x)
