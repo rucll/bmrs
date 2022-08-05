@@ -1,5 +1,7 @@
 from ast import Expression
 import re
+import csv
+import copy
 from types import LambdaType
 from numpy import isin
 from treeplotter.tree import Node
@@ -53,7 +55,6 @@ class Expression:
         else:
             # when funciton is a tree
             return f.evl_exp(dic, self.evl_fun_helper(dic, fun[1:], x))
-
     def evl_fun(self, dic, fun,  x:int):
         fun = re.split("\(|\)", fun)
         while "" in fun:
@@ -75,10 +76,12 @@ class Expression:
             return self.evl_exp_helper(dic, root.children[1], x)
         else:
             return self.evl_exp_helper(dic, root.children[2], x)
-    def evl_exp(self, dic,x:int):
+    def evl_exp(self, dic, x:int):
         if self.is_lambda:
             try:
-                return self.expression(x)
+                r = self.expression(x)
+                # print( "please", x, r)
+                return r
             except:
                 return False
         else:
@@ -95,12 +98,19 @@ class bmrs:
             'True':     Expression( lambda x: True ),
             'False':    Expression( lambda x: False ),
             'P':        Expression( lambda x: x-1 ),
-            'S':        Expression( lambda x: x+1 ),
-            'a':        Expression( lambda x: self.word[x] == 'a' ),
-            'b':        Expression( lambda x: self.word[x] == 'b' ),
-            'c':        Expression( lambda x: self.word[x] == 'c' )
+            'S':        Expression( lambda x: x+1 )
         }
         self.dic = dic
+
+    def add_pair(self, name, fun):
+        self.dic[copy.deepcopy(name)] = Expression( lambda x, y=fun: y ==  self.word[x] )
+
+
+    def readCSV(self, path):
+        with open(path, encoding='utf-8') as f:
+            pairs = csv.reader( f )
+            for pair in pairs:
+                self.dic[copy.deepcopy(str(pair[0]))] = Expression( lambda x, y=pair[1]: y ==  self.word[x] )
 
 
     def add_to_dic (self, f_names, fs):
@@ -112,7 +122,6 @@ class bmrs:
         self.word = word
         if x<0 or x>=len(word):
             raise IndexError("Index out of bound")
-
         try:
             return self.dic[exp].evl_exp(self.dic, x)
         except:
