@@ -119,7 +119,7 @@ class bmrs:
         
     def evl(self, exp, x, word):
         if exp not in self.dic:
-            raise LookupError("Expression not found")
+            raise LookupError("Expression '"+str(exp)+"' not found")
         self.word = word
         if x<0 or x>=len(word):
             raise IndexError("Index out of bound")

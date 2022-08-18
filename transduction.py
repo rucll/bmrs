@@ -34,10 +34,26 @@ class Transduction(bmrs):
       Essentially follows the rules in Bhaskar et al., 2021, which ultimately is derived
       from those in Engelfriet and Hoogeboom 2001
       """
-      indices = range(0,len(s)-1)
+      indices = range(0,len(s))
+
+      output = ""
 
       for i in indices:
-         pass #HERE
+
+         trues = []
+
+         for k in self.out_keys:
+            if self.evl(k,i,s):
+               trues.append(k.strip("_o"))
+
+         # Only output if there *is exactly one* output function which i satisfies
+         if len(trues) == 1:
+            output += trues[0]
+         # ...otherwise output empty string
+         else:
+            output += ""
+
+      return output
 
 
    def new_exp(self,f_name,f):
