@@ -62,7 +62,6 @@ class Expression:
         res = self.evl_fun_helper(dic, fun, x)
         return res
 
-    # evl if f1(x) then True else f2(f3(x))
     def evl_exp_helper(self, dic, root: Node, x:int):
         if x<0:
             raise "Index out of bound"
@@ -76,6 +75,7 @@ class Expression:
             return self.evl_exp_helper(dic, root.children[1], x)
         else:
             return self.evl_exp_helper(dic, root.children[2], x)
+
     def evl_exp(self, dic, x:int):
         if self.is_lambda:
             try:
