@@ -6,9 +6,9 @@ from constants import *
 import re
 
 # Variables for keeping track of named objects created by user
-systems: Dict[str,Transduction] = {} # BMRS transductions
+systems: Dict[str,Transducer] = {}   # BMRS transducers
 alphas:  Dict[str,set] = {}          # alphabets
-current = None                       # Name (string) of current transducer
+current = "empty"                    # Name (string) of current transducer
 
 # Helper functions
 def parse_alpha(s):
@@ -27,20 +27,23 @@ def parse_alpha(s):
 
 def new_trans(keywords):
     """Create a new transducer"""
+    global current
     try:
         name  = keywords[1]
         sigma = parse_alpha(keywords[2])
         gamma = parse_alpha(keywords[3])
-        systems["name"] = Transduction(sigma,gamma)
-        return "Added new transduction '"+name+"', input alphabet "+str(sigma)+"; output alphabet "+str(gamma)
+        systems[name] = Transducer(sigma,gamma)
+        current = name
+        return "Added new transducer '"+name+"', input alphabet "+str(sigma)+"; output alphabet "+str(gamma)
 
     except:
         return "Something went wrong!\nSyntax for newt is 'newt [name] [in alpha] [out alpha]', where each alphabet is of the form '{a, b, c, ..., z}'."
 
 # To do
-# trans(keywords) #transduce a string with current transducer
-# listt(keywords) #list all transducers
-# alpha           #create an alphabet
+# trans(keywords) # transduce a string with current transducer
+# add(keywords)   # add definition to current transducer
+# listt(keywords) # list all transducers
+# alpha           # create an alphabet
 
 
 # Dictionary for keywords and functions here
@@ -67,11 +70,11 @@ def parse_input(s):
 
 if __name__ == "__main__":
     print(opening)
-    print(prompt+" ",end="")
+    print("["+current+"] "+prompt+" ",end="")
     in_string = input()
 
     while in_string != quitstring:
         print(parse_input(in_string))
 
-        print(prompt+" ",end="")
+        print("["+current+"] "+prompt+" ",end="")
         in_string = input()
