@@ -9,7 +9,8 @@ from treeplotter.plotter import create_tree_diagram
 from parse import build_tree, parse_exp
 from typing import Dict, List
 
-
+# Expression can be a lambda expression or a bmrs expression. 
+#   expression type can be easily accessed via is_lambda instance variable.
 class Expression: 
     def __init__(self) -> None:
         self.is_lambda = True
@@ -29,8 +30,8 @@ class Expression:
             self.is_lambda = False
             self.expression = build_tree(exp)
 
-    # solves f1(f2(x))
-    # in helper, fun = [f1, f2, x]
+    # solves functions such as "f1(f2(x))"
+    # helper method for evl_fun() method below
     def evl_fun_helper(self, dic, fun, x:int):
         if x<0:
             raise "Index out of bound"
@@ -43,7 +44,6 @@ class Expression:
                 return f.evl_exp(dic, x)
             else: 
                 raise LookupError("invalid expression")
-        
         # apply f to right
         f_name = fun[0]
         if f_name not in dic: 
@@ -55,6 +55,11 @@ class Expression:
         else:
             # when funciton is a tree
             return f.evl_exp(dic, self.evl_fun_helper(dic, fun[1:], x))
+
+    # solves any bmrs expression as a function. 
+    # dic: python dictionary sturcture that maps expression names to Expression structures.
+    # fun: string of brms expression. example: f1(f2(f3(x)))
+    # x: index of where the evulation starts
     def evl_fun(self, dic, fun,  x:int):
         fun = re.split("\(|\)", fun)
         while "" in fun:
@@ -62,7 +67,8 @@ class Expression:
         res = self.evl_fun_helper(dic, fun, x)
         return res
 
-    # evl if f1(x) then True else f2(f3(x))
+    # helper for evl_exp method
+    # uses evl_fun
     def evl_exp_helper(self, dic, root: Node, x:int):
         if x<0:
             raise "Index out of bound"
@@ -76,6 +82,13 @@ class Expression:
             return self.evl_exp_helper(dic, root.children[1], x)
         else:
             return self.evl_exp_helper(dic, root.children[2], x)
+    
+    # evl if f1(x) then True else f2(f3(x))
+    # it breaks the expression into pieces by "if xx then xx else" recursivly
+    # xx part will be passed into evl_fun() method for getting a integer/boolean value.
+
+    # dic: python dictionary sturcture that maps expression names to Expression structures.
+    # x: index of where the evulation starts
     def evl_exp(self, dic, x:int):
         if self.is_lambda:
             try:
@@ -91,8 +104,6 @@ class Expression:
                 return False
 
 class bmrs:
-    # TODO: Add argument to init that takes a set of one-symbols strings (an alphabet)
-    #       Then in init there is a for loop that says "for a in alphabet: dic[a] = Expression(lambda x: self.word[x] == a)"
     def __init__(self) -> None:
         # dic: dictionary from name to function
         self.word = ""
@@ -105,20 +116,27 @@ class bmrs:
         }
         self.dic = dic
 
+    # add name, bmrs expression pairs into the dictionry. this will be used for all the evaluation under the current bmrs object 
     def add_pair(self, name, fun):
         self.dic[copy.deepcopy(name)] = Expression( lambda x, y=fun: y ==  self.word[x] )
 
-
+    # read alphabet in volume via a csv file.
     def readCSV(self, path):
         with open(path, encoding='utf-8') as f:
             pairs = csv.reader( f )
             for pair in pairs:
                 self.dic[copy.deepcopy(str(pair[0]))] = Expression( lambda x, y=pair[1]: y ==  self.word[x] )
-
-
+    
+    # Add one expression to the current dictory. 
+    # f_names: is the name for expression
+    # fs: the expression as a string.
     def add_to_dic (self, f_names, fs):
         self.dic[f_names] = Expression(fs)
         
+    # eveluate an expresssion that is in the dictory 
+    # exp: name of the expression
+    # x: the index where the evaluation would starts
+    # word: word the expression will process on
     def evl(self, exp, x, word):
         if exp not in self.dic:
             raise LookupError("Expression not found")
