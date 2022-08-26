@@ -82,6 +82,7 @@ class Expression:
             return self.evl_exp_helper(dic, root.children[1], x)
         else:
             return self.evl_exp_helper(dic, root.children[2], x)
+
     
     # evl if f1(x) then True else f2(f3(x))
     # it breaks the expression into pieces by "if xx then xx else" recursivly
@@ -139,7 +140,7 @@ class bmrs:
     # word: word the expression will process on
     def evl(self, exp, x, word):
         if exp not in self.dic:
-            raise LookupError("Expression not found")
+            raise LookupError("Expression '"+str(exp)+"' not found")
         self.word = word
         if x<0 or x>=len(word):
             raise IndexError("Index out of bound")
