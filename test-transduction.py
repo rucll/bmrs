@@ -1,10 +1,10 @@
-from transduction import Transduction
+from transduction import Transducer
 
 if __name__ == "__main__":
       sigma = {"a","b","c"}
       gamma = {"a","b","c"}
 
-      t = Transduction(sigma,gamma)
+      t = Transducer(sigma,gamma)
 
       word = "abaaacaaabaa"
 
@@ -24,10 +24,6 @@ if __name__ == "__main__":
             print(s)
 
 
-      # a -> b / b __ (noniterative)
-      t.new_exp("a_o","IF b_o(x) THEN False ELSE a_i(x)")
-      t.new_exp("b_o","IF c_i(x) THEN FALSE ELSE IF b_i(x) THEN True ELSE b_i(P(x))")
-      t.new_exp("c_o","c_i(x)")
 
       # a -> b / b __ (iterative)
       t.new_exp("a_o","IF b_o(x) THEN False ELSE a_i(x)")
@@ -37,6 +33,11 @@ if __name__ == "__main__":
       # a -> b / __ b(iterative)
       t.new_exp("a_o","IF b_o(x) THEN False ELSE a_i(x)")
       t.new_exp("b_o","IF c_i(x) THEN FALSE ELSE IF b_i(x) THEN True ELSE b_o(S(x))")
+      t.new_exp("c_o","c_i(x)")
+
+      # a -> b / b __ (noniterative)
+      t.new_exp("a_o","IF b_o(x) THEN False ELSE a_i(x)")
+      t.new_exp("b_o","IF c_i(x) THEN FALSE ELSE IF b_i(x) THEN True ELSE b_i(P(x))")
       t.new_exp("c_o","c_i(x)")
 
       print("transducing...")

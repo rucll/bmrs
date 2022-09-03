@@ -1,6 +1,6 @@
 from bmrs import *
 
-class Transduction(bmrs):
+class Transducer(bmrs):
    """A class for defining the semantics of BMRS systems of equations as string to string transductions"""
 
    def __init__(self,sigma,gamma) -> True:
