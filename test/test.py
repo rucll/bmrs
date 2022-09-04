@@ -1,4 +1,4 @@
-from bmrs import bmrs
+from objects import bmrs
 
 # notes: 
 # bmrs stores dic

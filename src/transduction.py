@@ -1,4 +1,4 @@
-from bmrs import *
+from .objects import bmrs, Expression
 
 class Transducer(bmrs):
    """A class for defining the semantics of BMRS systems of equations as string to string transductions"""

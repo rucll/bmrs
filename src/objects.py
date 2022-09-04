@@ -6,7 +6,7 @@ from types import LambdaType
 from numpy import isin
 from treeplotter.tree import Node
 from treeplotter.plotter import create_tree_diagram
-from parse import build_tree, parse_exp
+from .parse import build_tree, parse_exp
 from typing import Dict, List
 
 # Expression can be a lambda expression or a bmrs expression. 
