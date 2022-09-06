@@ -1,56 +1,120 @@
 import PySimpleGUI as sg
 import sys
+import copy
 from src.transduction import Transducer
 
-layout = [
-    [ sg.Text("Please enter file name for input alphabet: "),  sg.InputText()],
-    [ sg.Text("Please enter file name for output alphabet: "), sg.InputText()],
+alphabet_setup_layout = [
+    [ sg.Text("Please enter input alphabet(leave empty to read from in.txt): "),  sg.InputText()],
+    [ sg.Text("Please enter output alphabet(leave empty to read from out.txt): "), sg.InputText()],
     [ sg.Submit(), sg.Cancel()]
 ]
+menu_layout = [
+    [ sg.Button('AddExpressionFromText')],
+    [ sg.Button('AddExpressionsFromFile')],
+    [ sg.Button('TransduceWord')],
+    [ sg.Cancel()],
+]
 
-window = sg.Window("Alphabet Set Up", layout)
+# GET ALPHABET
+window = sg.Window("Alphabet Set Up", alphabet_setup_layout)
 event, values = window.read()
 if event == 'Cancel':
     sys.exit()
-try:
-    f = open( values[0], "r")
+# get in alph
+if( values[0] == ''):
+    f = open( "in.txt", "r")
     sigma = f.read().split()
     f.close()
-except:
-    sys.exit('Input alphabet not found')
-
-try:
-    f = open( values[1], "r")
+else:
+    sigma = values[0].split()
+# get out alph
+if( values[1] == ''):
+    f = open( "out.txt", "r")
     gamma = f.read().split()
     f.close()
-except:
-    sys.exit('Output alphabet not found')
-
-layout = [
-    [ sg.Text("Enter the word: "), sg.InputText()],
-    [ sg.Submit(), sg.Cancel()]
-]
-window = sg.Window("Set Up", layout)
-event, values = window.read()
-
-if event == 'Cancel':
-    sys.exit()
-word = values[0]
+else:
+    gamma = values[0].split()
+window.close()
 
 
+# START MENU
 t = Transducer(sigma,gamma)
+menu_window = sg.Window("Menu", menu_layout)
+while True:
+    menu_event, values = menu_window.read()
+    if menu_event == sg.WINDOW_CLOSED or menu_event == 'Cancel':
+        menu_window.close()
+        sys.exit()
+    elif menu_event == 'AddExpressionFromText':
+        addOneExpression_layout = [
+            [ sg.Text("Name: "), sg.InputText()],
+            [ sg.Text("Expression: "), sg.InputText()],
+            [ sg.Submit(), sg.Cancel()]
+        ]
+        add_one_exp_window = sg.Window("Word", addOneExpression_layout)
+        event, values = add_one_exp_window.read()
+        name = values[0]
+        exp = values[1]
+        t.new_exp(name, exp)
+        add_one_exp_window.close()
+    elif menu_event == 'AddExpressionsFromFile':
+        addExpressionFromFile_layout = [
+            [ sg.Text("File Path(leave empty to read from exp.txt): "), sg.InputText()],
+            [ sg.Submit(), sg.Cancel()]
+        ]
+        add_exp_file_window = sg.Window("Word", addExpressionFromFile_layout)
+        event, values = add_exp_file_window.read()
+        file_path = values[0]
+        f = open( file_path , 'r')
+        lines = f.readlines()
+        for line in lines:
+            ne = line.split(', ')
+            t.new_exp(ne[0], ne[1])
 
-s = "index\t"
-for j in t.in_keys:
-    s+=j+"\t"
-# print(s)
+        add_exp_file_window.close()
 
-for i in range(0,len(word)):
-    s = str(i)+"\t"
+    elif menu_event == 'TransduceWord':
+        word_input_layout = [
+            [ sg.Text("Enter the word: "), sg.InputText()],
+            [ sg.Submit(), sg.Cancel()]
+        ]
+        transduce_window = sg.Window("Word", word_input_layout)
+        event, values = transduce_window.read()
+        if event == 'Cancel' or event == sg.WINDOW_CLOSED:
+            transduce_window.close()
 
-    for j in t.in_keys:
-            s += str(t.evl(j,i,word))+"\t"
-    # print(s)
+        if event == 'Submit':
+            transduce_window.close()
+            word = values[0]
+            # in table 
+            in_heading = ['index'] + copy.deepcopy(t.in_keys)
+            in_vals = []
+            for i in range(0,len(word)):
+                s = [str(i)]
+                for j in t.in_keys:
+                    s.append(str(t.evl(j,i,word)))
+                in_vals.append(s)
+            in_value_layout = [
+                [ sg.Text( str(" Original word: " + word ) ) ],
+                [ sg.Text( " Original word truth-table: ") ],
+                [ sg.Table(headings = in_heading,values = in_vals)]
+            ]
 
+            # out table
+            out_heading = ['index'] + copy.deepcopy(t.out_keys)
+            out_vals = []
+            for i in range(0,len(word)):
+                s = [str(i)]
+                for j in t.out_keys:
+                        s.append(str(t.evl(j,i,word)))
+                out_vals.append(s)
+            out_value_layout = [
+                [ sg.Text( str(" Transduced result: " + t.transduce(word) ) ) ],
+                [ sg.Text( " Transduced truth-table: ") ],
+                [ sg.Table(headings = out_heading, values = out_vals)]
+            ]
 
-
+            input_value_window = sg.Window("Truth value for inputs", in_value_layout)
+            out_value_window = sg.Window("Outputs", out_value_layout)
+            event, values = input_value_window.read()
+            event, values = out_value_window.read()
