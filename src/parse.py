@@ -4,29 +4,29 @@ from treeplotter.plotter import create_tree_diagram
 
 
 def build_tree(sentence: str, wai='root') -> Node:
-    if_index = sentence.find("IF")
+    if_index = sentence.lower().find("if")
     this_node = Node(value=None, name=wai)
 
     this_node.children = []
     then_index = -1
 
     # if it's the smallest unit.(base case)
-    if ('IF' not in sentence) and ('THEN' not in sentence) and ('ELSE' not in sentence):
+    if ('if' not in sentence.lower()) and ('then' not in sentence.lower()) and ('else' not in sentence.lower()):
         this_node.value = sentence.strip()
         return this_node
 
     # handle condition part
     after_if = copy.deepcopy(sentence[if_index + 3:])
-    if ('IF' in after_if) and (after_if.find('IF') < after_if.find('THEN')):
-        current_index = after_if.find('THEN', after_if.find('THEN') + 4)
-        while not (after_if[:current_index].count('IF')==
-                   after_if[:current_index].count('ELSE') ==
-                   after_if[:current_index].count('THEN')):
-            current_index = after_if.find('THEN', current_index + 4)
+    if ('if' in after_if.lower()) and (after_if.lower().find('if') < after_if.lower().find('then')):
+        current_index = after_if.lower().find('then', after_if.find('then') + 4)
+        while not (after_if[:current_index].lower().count('if')==
+                   after_if[:current_index].lower().count('else') ==
+                   after_if[:current_index].lower().count('then')):
+            current_index = after_if.lower().find('then', current_index + 4)
         then_index = current_index + if_index + 3
         this_node.children.append(build_tree(after_if[:current_index], wai='condition'))
     else:
-        then_index = sentence.find('THEN')
+        then_index = sentence.lower().find('then')
         this_node.children.append(build_tree(sentence[(if_index + 3):then_index], wai='condition'))
 
     # find where then part ends
@@ -38,8 +38,8 @@ def build_tree(sentence: str, wai='root') -> Node:
 
     sep_index = then_index + 4
     while then_count != else_count:
-        then_index = sbs.find("THEN")
-        else_index = sbs.find("ELSE")
+        then_index = sbs.lower().find("then")
+        else_index = sbs.lower().find("else")
 
         # next one is then
         if (then_index != -1 and then_index < else_index) or else_index == -1:

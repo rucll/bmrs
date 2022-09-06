@@ -119,14 +119,14 @@ class bmrs:
 
     # add name, bmrs expression pairs into the dictionry. this will be used for all the evaluation under the current bmrs object 
     def add_pair(self, name, fun):
-        self.dic[copy.deepcopy(name)] = Expression( lambda x, y=fun: y ==  self.word[x] )
+        self.dic[copy.deepcopy(name)] = Expression( lambda x, y=fun: x>=0 and y ==  self.word[x] )
 
     # read alphabet in volume via a csv file.
     def readCSV(self, path):
         with open(path, encoding='utf-8') as f:
             pairs = csv.reader( f )
             for pair in pairs:
-                self.dic[copy.deepcopy(str(pair[0]))] = Expression( lambda x, y=pair[1]: y ==  self.word[x] )
+                self.dic[copy.deepcopy(str(pair[0]))] = Expression( lambda x, y=pair[1]:x>=0 and  y ==  self.word[x] )
     
     # Add one expression to the current dictory. 
     # f_names: is the name for expression

@@ -1,3 +1,2 @@
-a_o, IF b_o(x) THEN False ELSE a_i(x)
-b_o, IF c_i(x) THEN FALSE ELSE IF b_i(x) THEN True ELSE b_i(P(x))
-c_o, c_i(x)
+a_o = IF b_o(x) THEN False ELSE a_i(x)
+b_o = IF b_i(x) THEN True ELSE b_i(S(x))
