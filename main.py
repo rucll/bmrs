@@ -65,6 +65,8 @@ while True:
         add_exp_file_window = sg.Window("Word", addExpressionFromFile_layout)
         event, values = add_exp_file_window.read()
         file_path = values[0]
+        if file_path == '':
+            file_path = 'exp.txt'
         f = open( file_path , 'r')
         lines = f.readlines()
         for line in lines:
@@ -87,7 +89,7 @@ while True:
             transduce_window.close()
             word = values[0]
             # in table 
-            in_heading = ['index'] + copy.deepcopy(t.in_keys)
+            in_heading = ['Original'] + copy.deepcopy(t.in_keys)
             in_vals = []
             for i in range(0,len(word)):
                 s = [str(i)]
@@ -99,9 +101,8 @@ while True:
                 [ sg.Text( " Original word truth-table: ") ],
                 [ sg.Table(headings = in_heading,values = in_vals)]
             ]
-
             # out table
-            out_heading = ['index'] + copy.deepcopy(t.out_keys)
+            out_heading = ['Transduced'] + copy.deepcopy(t.out_keys)
             out_vals = []
             for i in range(0,len(word)):
                 s = [str(i)]
@@ -109,12 +110,15 @@ while True:
                         s.append(str(t.evl(j,i,word)))
                 out_vals.append(s)
             out_value_layout = [
-                [ sg.Text( str(" Transduced result: " + t.transduce(word) ) ) ],
-                [ sg.Text( " Transduced truth-table: ") ],
-                [ sg.Table(headings = out_heading, values = out_vals)]
+                [ 
+                    sg.Text( str(" Original word: " + word ) ) , 
+                    sg.Text( str(" Transduced result: " + t.transduce(word) ) ) 
+                ],
+                [ 
+                    sg.Table(headings = out_heading, values = out_vals), 
+                    sg.Table(headings = in_heading,values = in_vals)
+                ]
             ]
-
-            input_value_window = sg.Window("Truth value for inputs", in_value_layout)
             out_value_window = sg.Window("Outputs", out_value_layout)
-            event, values = input_value_window.read()
             event, values = out_value_window.read()
+        
