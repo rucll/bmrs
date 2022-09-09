@@ -40,6 +40,8 @@ Leave blank and click `Submit` to proceed with the default alphabets (currently 
 
 ### Menu
 
+After the alphabets have been set up, `bmrs.py` loads an empty BMRS transducer. From this menu, you can:
+
 * `AddExpressionFromText` -
 Add a new definition directly from the UI.
 * `AddExpressionFromFile` - 
@@ -54,6 +56,8 @@ Quit.
 
 * Features
 * Copy set (for epenthesis)
+* Saving, loading, and viewing of transducers
+* Other UI sugar
 * ... (suggestions welcome!)
 
 # Contributors
