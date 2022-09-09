@@ -14,4 +14,3 @@ b_o = if b_i(x) then True else
 # Done
 
 * IF/THEN parsing needs to be case insensitive
-...
