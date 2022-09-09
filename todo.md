@@ -8,6 +8,8 @@ b_o = if b_i(x) then True else
       if a_i(x) then b_o(P(x)) else
       False
 ```
+* Do a syntax check so it doesn't hang on ill-formed expressions
+
 
 # Done
 
