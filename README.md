@@ -63,4 +63,4 @@ Quit.
 # Contributors
 
 * [Adam Jardine](https://www.adamjardine.net) (Faculty advisor)
-* [Daniel Jin](https://github.com/v0lv0) (coding)
+* [Daniel Jin](https://github.com/v0lv0) (main programmer)
