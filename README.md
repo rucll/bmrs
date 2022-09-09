@@ -1,6 +1,6 @@
 # bmrs.py
 
-An implementation of BMRS written in Python.
+An implementation of BMRS written in Python with a simple graphical interface.
 
 ## Running
 
@@ -26,8 +26,8 @@ For full description of the BMRS syntax, see those papers.
 
 The syntax here uses the basic BMRS syntax, as in the following example.
 ```
-a_o = if b_o(x) then False else a_i(x)
-b_o = if b_i(x) then True else if a_i(x) then b_o(P(P(x))) else False
+a_o = IF b_o(x) THEN False ELSE a_i(x)
+b_o = IF b_i(x) THEN True ELSE if a_i(x) THEN b_o(P(x)) ELSE False
 c_o = c_o(x)
 ```
 Note that `a_i(x)` indicates an *input* `a`, whereas `a_o(x)` indicates an *output* `a`.
