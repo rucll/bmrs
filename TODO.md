@@ -1,5 +1,5 @@
 # To do list:
-
+## Syntax/semantics
 * Fix S(x) wrapping around problem
 * Make whitespace insensitive. For example, inputting the following text will return an error:
 ```
@@ -9,6 +9,11 @@ b_o = if b_i(x) then True else
       False
 ```
 * Do a syntax check so it doesn't hang on ill-formed expressions
+
+## UI
+* Text box to transduce a new word directly on the transduction results window (to save clicks)
+* Keyboard shortcuts
+* Memory of previously input files/etc
 
 
 # Done
