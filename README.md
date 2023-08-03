@@ -2,6 +2,8 @@
 
 An implementation of BMRS written in Python with a simple graphical interface.
 
+What happens with $\Sigma$?
+
 ## Running
 
 Requires Python 3.x and [PySimpleGUI](https://www.pysimplegui.org/en/latest/).
